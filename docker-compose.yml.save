@@ -1,0 +1,30 @@
+version: '2'
+
+services:
+    mariadb:
+        image: mariadb/server
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: rootpassword
+        volumes:
+            - ./mariadb/volume:/vol
+            - ./mariadb/my.cnf:/etc/mysql/my.cnf
+
+    website:
+        build: ./website
+        restart: always
+        volumes:
+            - ./website/html:/var/www/html
+        ports:
+            - 80:80
+        depends_on:
+            - mariadb
+    python:        build: ./python
+        volumes:
+            - ./python/app:/usr/src/app
+        depends_on:
+            - mariadb
+        command: tail -F anything
+        devices:
+            - /dev/ttyACM0:/dev/ttyACM0
+        privileged: true
